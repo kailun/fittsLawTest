@@ -1,0 +1,166 @@
+<html>
+	<head>
+		<title>"Fitts' Law Dragging Test"</title>
+		<link type="text/css" href="fitts/style.css" rel="stylesheet" />
+		<script type="text/javascript" src="fitts/jquery.min.js"></script>
+		<script type="text/javascript" src="fitts/raphael-min.js"></script>
+	</head>
+
+	<body>
+		<div id="banner">Drag the blue circle inside the red one</div>
+		<div id="canvas"></div>
+	</body>
+	<script>
+
+window.onload = function() {
+
+        var rz = 200 //150;//layout radius
+        var radius =[40,43,46.8,96,109,122,122,
+            		 40,43,46.8,96,109,122,
+            		 40,43,46.8,96,109,122,
+            		 40,43,46.8,96,109,122];
+        var ir = 35;
+        var n = 25; // n-1 = # of trials
+        var trial = 1; 
+
+        var WIDTH = 1000;
+        var HEIGHT = 645;
+
+        //x,y pos of fixation
+        var FIX_X = WIDTH/2;
+        var FIX_Y = HEIGHT/2; 
+
+        var opacityOver = 1;
+        var opacityDefault = .5;
+
+     	// check if initial circle is over target circle
+     	var lock = false;
+
+        // shuffle radius array
+        shuffleArray = function(array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+            return array;
+        };
+
+        shuffleArray(radius);
+
+        // create canvas
+        var R = Raphael("canvas", WIDTH, HEIGHT);
+
+        // create circle
+        var c = R.circle(100, 100, 30).attr({
+                    fill: "cornflowerblue",
+                    stroke: "none",
+                    opacity: opacityDefault,
+                    cursor: "pointer"
+                });
+        var tc = R.circle(100, 100, 30).attr({
+                    fill: "red",
+                    stroke: "none",
+                    opacity: opacityDefault
+                });
+
+        	start = function () {
+        		this.ox = this.attr("cx");
+       			this.oy = this.attr("cy");
+    		},
+
+    		move = function (dx, dy) {
+        		this.attr({cx: this.ox + dx, cy: this.oy + dy});
+    		},
+    		up = function () {
+        		this.attr({opacity: .5});       
+    		},
+    		mouseup = function(){
+        		pos = getCirclePosition(trial);
+	        		console.log(pos);
+	        		console.log(c.attr("cx"));
+	        		console.log(c.attr("cy"));
+	            if (pos[0]==c.attr("cx")&&pos[1]==c.attr("cy")){
+
+	            }else if (trial < n){
+	                trial++;   
+	                setCircleRadius(this, tc, trial);
+	                setCirclePosition(this,tc, trial); 
+	            }else {
+	                c.remove();
+	                tc.remove();
+	         		alert("End of Block");
+            	}
+        	};
+
+        // update circle's radius and position
+        setCircleRadius = function(initialCircle, targetCircle, trial){
+            initialCircle.attr({r: ir});
+            targetCircle.attr({r: radius[trial]});
+        }
+
+        getCirclePosition = function(trial){
+            offset = Math.ceil(n/2);
+            cnt_pos = trial/2;
+            if (trial%2==0){
+                ix=rz*Math.cos(2*cnt_pos*Math.PI/n)+FIX_X;
+                iy=rz*Math.sin(2*cnt_pos*Math.PI/n)+FIX_Y;    
+
+				tx=rz*Math.cos(2*(cnt_pos+offset)*Math.PI/n)+FIX_X;
+				ty=rz*Math.sin(2*(cnt_pos+offset)*Math.PI/n)+FIX_Y;
+            } else {
+                ix=rz*Math.cos(2*(cnt_pos+offset)*Math.PI/n)+FIX_X;
+                iy=rz*Math.sin(2*(cnt_pos+offset)*Math.PI/n)+FIX_Y;
+                
+                tx=rz*Math.cos(2*cnt_pos*Math.PI/n)+FIX_X;
+				ty=rz*Math.sin(2*cnt_pos*Math.PI/n)+FIX_Y;	
+            }
+            return [ix,iy,tx,ty];
+        }
+
+        setCirclePosition = function(initialCircle, targetCircle, trial){
+            newPos = getCirclePosition(trial);
+            initialCircle.attr({cx: newPos[0], cy: newPos[1]});
+            targetCircle.attr({cx: newPos[2], cy: newPos[3]});
+        }
+
+        distance = function(initialCircle,targetCircle){
+        	ix = initialCircle.attr("cx");
+       		iy = initialCircle.attr("cy");
+       		tx = targetCircle.attr("cx");
+       		ty = targetCircle.attr("cy");
+       		dist = Math.sqrt(Math.pow((ix-tx),2)+Math.pow((iy-ty),2));
+
+       		return dist;
+        }
+
+        setCirclePosition(c, tc, trial);
+        setCircleRadius(c, tc, trial);
+
+        c.mouseup(mouseup);
+        tc.mouseup(mouseup);
+
+    	c.mousemove(function(){
+    		distance(this,tc);
+       		diff = tc.attr("r")-this.attr("r");
+
+       		if (dist <= diff){
+       			lock = true;
+       		} else{
+       			lock = false;
+       		}
+    	});
+
+   		c.mouseover(function(){
+            this.attr({opacity: opacityOver});
+        });
+
+        c.mouseout(function(){
+            this.attr({opacity: opacityDefault});
+        });
+        c.drag(move, start, up);
+
+	
+};
+</script>

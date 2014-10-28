@@ -1,0 +1,109 @@
+<html>
+	<head>
+		<title>"Fitts' Law Pointing Test"</title>
+		<link type="text/css" href="fitts/style.css" rel="stylesheet" />
+		<script type="text/javascript" src="fitts/jquery.min.js"></script>
+		<script type="text/javascript" src="fitts/raphael-min.js"></script>
+	</head>
+
+	<body>
+		<div id="banner">Click on the blue circle</div>
+		<div id="canvas"></div>
+	</body>
+
+	<script>
+    window.onload = function() {
+
+        var rz = 200 //150;//layout radius
+        var radius =[40,43,46.8,96,109,122,122,
+            		 40,43,46.8,96,109,122,
+            		 40,43,46.8,96,109,122,
+            		 40,43,46.8,96,109,122];
+        var n = 25; // n-1 = # of trials
+        var trial = 0; 
+
+        var WIDTH = 1000;
+        var HEIGHT = 645;
+
+        //x,y pos of fixation
+        var FIX_X = WIDTH/2;
+        var FIX_Y = HEIGHT/2; 
+
+        var opacityOver = 1;
+        var opacityDefault = .5;
+
+        // shuffle radius array
+        shuffleArray = function(array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+            return array;
+        };
+
+        shuffleArray(radius);
+
+        // create canvas
+        var R = Raphael("canvas", WIDTH, HEIGHT);
+
+        var s = R.rect(0,0,WIDTH,HEIGHT).attr({fill:"grey",opacity:0});
+        // create circle
+        var c = R.circle(100, 100, 30).attr({
+                    fill: "cornflowerblue",
+                    stroke: "none",
+                    opacity: opacityDefault,
+                    cursor: "pointer"
+                });
+
+        // update circle's radius and position
+        setCircleRadius = function(circle, trial){
+            circle.attr({r: radius[trial]});
+        }
+
+        getCirclePosition = function(trial){
+            offset = Math.ceil(n/2);
+            cnt_pos = trial/2;
+            if (trial%2==0){
+                dx=rz*Math.cos(2*cnt_pos*Math.PI/n)+FIX_X;
+                dy=rz*Math.sin(2*cnt_pos*Math.PI/n)+FIX_Y;    
+            } else {
+                dx=rz*Math.cos(2*(cnt_pos+offset)*Math.PI/n)+FIX_X;
+                dy=rz*Math.sin(2*(cnt_pos+offset)*Math.PI/n)+FIX_Y;
+            }
+            return [dx, dy];
+        }
+
+        setCircleAttr = function(circle, trial){
+            newPos = getCirclePosition(trial);
+            circle.attr({cx: newPos[0], cy: newPos[1], opacity: opacityDefault});
+        }
+
+        mousedown = function(){
+            if (trial < n){
+                trial++;   
+                setCircleRadius(c, trial);
+                setCircleAttr(c, trial); 
+            } else{
+                c.remove();
+                alert("End of Experiment");
+            }
+        }
+
+        setCircleAttr(c, trial);
+        setCircleRadius(c, trial);
+
+        s.mousedown(mousedown);
+        c.mousedown(mousedown);
+    	
+   		c.mouseover(function(){
+            this.attr({opacity: opacityOver});
+        });
+
+        c.mouseout(function(){
+            this.attr({opacity: opacityDefault});
+        });
+    };
+    </script>
+</head>
