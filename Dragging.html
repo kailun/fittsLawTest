@@ -7,20 +7,37 @@
 	</head>
 
 	<body>
-		<div id="banner">Drag the blue circle inside the red one</div>
+		<div id="banner">Drag the blue circle <b> fully </b> inside the red one.     
+            <input type="button" onclick="changeID()" value="Change ID">
+            <input type="button" onclick="reset()" value="Reset">
+            <p align = "right" id="textfield"> </p>
+        </div>
+
 		<div id="canvas"></div>
 	</body>
-	<script>
+
+<script type="text/javascript">
 
 window.onload = function() {
+        var radius =[40,43,46.8,96,109,122,
+                     40,43,46.8,96,109,122,
+                     40,43,46.8,96,109,122,
+                     40,43,46.8,96,109,122,
+                     40,43,46.8,96,109,122];
+        var n = 30;
+        shuffleArray(radius);
+        fitts(200,radius,n);
+};
 
-        var rz = 200 //150;//layout radius
-        var radius =[40,43,46.8,96,109,122,122,
-            		 40,43,46.8,96,109,122,
-            		 40,43,46.8,96,109,122,
-            		 40,43,46.8,96,109,122];
-        var ir = 35;
-        var n = 25; // n-1 = # of trials
+function fitts(rLayout,rSet,number){
+
+        var rz = rLayout; //layout radius; Distance = 2*rz
+        var radius=rSet;
+
+        var min = Math.min.apply(null, radius);
+        if (min>40) min=40;
+        var ir = min-5;//r_initial= min-5;
+        var n = number; // # of trials
         var trial = 1; 
 
         var WIDTH = 1000;
@@ -33,21 +50,10 @@ window.onload = function() {
         var opacityOver = 1;
         var opacityDefault = .5;
 
-     	// check if initial circle is over target circle
-     	var lock = false;
+        // check if initial circle is over target circle
+        var lock = false;
 
-        // shuffle radius array
-        shuffleArray = function(array) {
-            for (var i = array.length - 1; i > 0; i--) {
-                var j = Math.floor(Math.random() * (i + 1));
-                var temp = array[i];
-                array[i] = array[j];
-                array[j] = temp;
-            }
-            return array;
-        };
-
-        shuffleArray(radius);
+        document.getElementById("textfield").innerHTML = "Number of Trial(s) left:"+n;
 
         // create canvas
         var R = Raphael("canvas", WIDTH, HEIGHT);
@@ -65,34 +71,37 @@ window.onload = function() {
                     opacity: opacityDefault
                 });
 
-        	start = function () {
-        		this.ox = this.attr("cx");
-       			this.oy = this.attr("cy");
-    		},
+            start = function () {
+                this.ox = this.attr("cx");
+                this.oy = this.attr("cy");
+            },
 
-    		move = function (dx, dy) {
-        		this.attr({cx: this.ox + dx, cy: this.oy + dy});
-    		},
-    		up = function () {
-        		this.attr({opacity: .5});       
-    		},
-    		mouseup = function(){
-        		pos = getCirclePosition(trial);
-	        		console.log(pos);
-	        		console.log(c.attr("cx"));
-	        		console.log(c.attr("cy"));
-	            if (pos[0]==c.attr("cx")&&pos[1]==c.attr("cy")){
+            move = function (dx, dy) {
+                this.attr({cx: this.ox + dx, cy: this.oy + dy});
+            },
+            up = function () {
+                this.attr({opacity: .5});       
+            },
+            mouseup = function(){
 
-	            }else if (trial < n){
-	                trial++;   
-	                setCircleRadius(this, tc, trial);
-	                setCirclePosition(this,tc, trial); 
-	            }else {
-	                c.remove();
-	                tc.remove();
-	         		alert("End of Block");
-            	}
-        	};
+                document.getElementById("textfield").innerHTML = "Number of Trial(s) left:"+(n-trial);
+
+                pos = getCirclePosition(trial);
+                    console.log(pos);
+                    console.log(c.attr("cx"));
+                    console.log(c.attr("cy"));
+                if (pos[0]==c.attr("cx")&&pos[1]==c.attr("cy")){
+
+                }else if (trial < n){
+                    trial++;   
+                    setCircleRadius(this, tc, trial);
+                    setCirclePosition(this,tc, trial); 
+                }else {
+                    c.remove();
+                    tc.remove();
+                    alert("End of Block");
+                }
+            };
 
         // update circle's radius and position
         setCircleRadius = function(initialCircle, targetCircle, trial){
@@ -107,14 +116,14 @@ window.onload = function() {
                 ix=rz*Math.cos(2*cnt_pos*Math.PI/n)+FIX_X;
                 iy=rz*Math.sin(2*cnt_pos*Math.PI/n)+FIX_Y;    
 
-				tx=rz*Math.cos(2*(cnt_pos+offset)*Math.PI/n)+FIX_X;
-				ty=rz*Math.sin(2*(cnt_pos+offset)*Math.PI/n)+FIX_Y;
+                tx=rz*Math.cos(2*(cnt_pos+offset)*Math.PI/n)+FIX_X;
+                ty=rz*Math.sin(2*(cnt_pos+offset)*Math.PI/n)+FIX_Y;
             } else {
                 ix=rz*Math.cos(2*(cnt_pos+offset)*Math.PI/n)+FIX_X;
                 iy=rz*Math.sin(2*(cnt_pos+offset)*Math.PI/n)+FIX_Y;
                 
                 tx=rz*Math.cos(2*cnt_pos*Math.PI/n)+FIX_X;
-				ty=rz*Math.sin(2*cnt_pos*Math.PI/n)+FIX_Y;	
+                ty=rz*Math.sin(2*cnt_pos*Math.PI/n)+FIX_Y;  
             }
             return [ix,iy,tx,ty];
         }
@@ -126,13 +135,13 @@ window.onload = function() {
         }
 
         distance = function(initialCircle,targetCircle){
-        	ix = initialCircle.attr("cx");
-       		iy = initialCircle.attr("cy");
-       		tx = targetCircle.attr("cx");
-       		ty = targetCircle.attr("cy");
-       		dist = Math.sqrt(Math.pow((ix-tx),2)+Math.pow((iy-ty),2));
+            ix = initialCircle.attr("cx");
+            iy = initialCircle.attr("cy");
+            tx = targetCircle.attr("cx");
+            ty = targetCircle.attr("cy");
+            dist = Math.sqrt(Math.pow((ix-tx),2)+Math.pow((iy-ty),2));
 
-       		return dist;
+            return dist;
         }
 
         setCirclePosition(c, tc, trial);
@@ -141,26 +150,78 @@ window.onload = function() {
         c.mouseup(mouseup);
         tc.mouseup(mouseup);
 
-    	c.mousemove(function(){
-    		distance(this,tc);
-       		diff = tc.attr("r")-this.attr("r");
+        c.mousemove(function(){
+            distance(this,tc);
+            diff = tc.attr("r")-this.attr("r");
 
-       		if (dist <= diff){
-       			lock = true;
-       		} else{
-       			lock = false;
-       		}
-    	});
+            if (dist <= diff){
+                lock = true;
+            } else{
+                lock = false;
+            }
+        });
 
-   		c.mouseover(function(){
+        c.mouseover(function(){
             this.attr({opacity: opacityOver});
         });
 
         c.mouseout(function(){
             this.attr({opacity: opacityDefault});
         });
-        c.drag(move, start, up);
+        c.drag(move, start, up);   
+}
+       // shuffle radius array
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
 
-	
-};
+function reset(){
+        document.getElementById("canvas").innerHTML = "";
+        alert("Reset block.");
+        var radius =[40,43,46.8,96,109,122,
+                     40,43,46.8,96,109,122,
+                     40,43,46.8,96,109,122,
+                     40,43,46.8,96,109,122,
+                     40,43,46.8,96,109,122];
+        shuffleArray(radius);
+        fitts(200,radius,30); // 30 is number of trials;
+}
+
+function calculateR(newRLayout,newID){
+    newR = (200 / (Math.pow(2,newID)-1));
+    return newR;
+}
+function changeID() {
+        var newID = prompt("Please enter an ID (any number between 1-8)", "1.5");
+      
+        document.getElementById("canvas").innerHTML = "";//clear content
+        var n = 30;
+        var r = calculateR(200,newID);
+
+    if (newID< 8&&newID>0){
+        alert( "Now all the trials have ID = "+newID+"; Press \"reset\" to reset");
+
+        var radius = [0,0,0,0,0,0,
+                      0,0,0,0,0,0,
+                      0,0,0,0,0,0,
+                      0,0,0,0,0,0,
+                      0,0,0,0,0,0];
+        
+        for(var i = 0; i < n; i++) {radius[i]=r};
+        console.log(radius);
+        fitts(200,radius,n);
+    } else{
+        alert("Invalid ID. Test reset.");
+        reset();
+    }
+        
+}
+
 </script>
+
