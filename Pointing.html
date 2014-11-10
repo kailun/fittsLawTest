@@ -17,6 +17,9 @@
 	</body>
 
 	<script type = "text/javascript">
+
+    var touchScreen = false;
+
     window.onload = function() {
         var radius =[40,43,46.8,96,109,122,96,
                      40,43,46.8,96,109,122,
@@ -24,8 +27,19 @@
                      40,43,46.8,96,109,122,
                      40,43,46.8,96,109,122];
         var n = 30; //number of trials
-        shuffleArray(radius);
+        shuffleArray(radius);        
+
+        //check if device is touch screen
+        if ("ontouchstart" in document.documentElement){
+            touchScreen = true;
+            //alert("touchScreen "+touchScreen);
+        }else{
+            touchScreen = false;
+            //alert("touchScreen "+touchScreen);
+        }
+
         fitts(200,radius,n);//200 is layout radius
+
     };
 
     function fitts(rLayout,rSet,number){
@@ -77,17 +91,29 @@
             return [dx, dy];
         }
         
-        mouseup = function(){
+        // mouseup = function(){
 
-                document.getElementById("textfield").innerHTML = "Number of Trial(s) left:"+(n-trial);
-                console.log("trial #: "+trial);
-        }
+        //         document.getElementById("textfield").innerHTML = "Number of Trial(s) left:"+(n-trial);
+        //         console.log("trial #: "+trial);
+        // }
 
         setCircleAttr = function(circle, trial){
             newPos = getCirclePosition(trial);
             circle.attr({cx: newPos[0], cy: newPos[1], opacity: opacityDefault});
         }
 
+        tap = function(){
+            if (trial < n-1){
+                trial++;   
+                setCircleRadius(c, trial);
+                setCircleAttr(c, trial); 
+                document.getElementById("textfield").innerHTML = "Number of Trial(s) left:"+(n-trial);
+            } else{
+                R.remove();
+                document.getElementById("textfield").innerHTML = "Number of Trial(s) left:0";
+                alert("End of Experiment");
+            }
+        }
         mousedown = function(){
             if (trial < n-1){
                 trial++;   
@@ -101,12 +127,17 @@
             }
         }
 
+
         setCircleAttr(c, trial);
         setCircleRadius(c, trial);
 
-        s.mousedown(mousedown);
-        c.mousedown(mousedown);
-         c.mouseup(mouseup);
+        if (touchScreen == true){
+            s.touchstart(tap);
+            c.touchstart(tap);    
+        }else{
+            s.mousedown(mousedown);
+            c.mousedown(mousedown);
+        }
         
         c.mouseover(function(){
             this.attr({opacity: opacityOver});

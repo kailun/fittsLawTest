@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<title>"Fitts' Law Dragging Test"</title>
+		<link type="text/css" href="fitts/style.css" rel="stylesheet" />
+		<script type="text/javascript" src="fitts/jquery.min.js"></script>
+		<script type="text/javascript" src="fitts/raphael-min.js"></script>
+	</head>
+
+	<body>
+		<div id="banner">Drag the blue circle <b> fully </b> inside the red one.     
+            <p align = "right" id="textfield"> </p>
+            <input type="button" onclick="javascript:mytest()" value="Change ID">
+            <input type="button" onclick="mytest()" value="reset">
+        <!-- <p>Welcome to the site <b id='boldStuff2'>dude</b> </p> 
+        <input type='text' id='userInput' value='Enter Text Here' />
+        <input type='button' onclick='changeText2()' value='Change Text'/> -->
+        </div>
+
+		<div id="canvas"></div>
+	</body>
+	<script type="text/javascript">
+window.onload = function() {
+    document.getElementById("textfield").innerHTML = "this is the main content";
+    mytest();
+}
+function mytest() {
+        
+        //console.log("here");
+        //var reply = prompt("Hey there, good looking stranger!  What's your name?", "");
+        alert ( "Nice to see you around these parts !");
+    }
+    
+</script>
